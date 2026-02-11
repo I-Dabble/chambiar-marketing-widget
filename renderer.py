@@ -136,6 +136,8 @@ def render_receipt_png(receipt: Dict[str, Any], out_path: str):
     lx, rx = x0 + pad, x1 - pad
     y = y0 + pad
 
+    # --- layout guard: ensure we don't render past the footer ---
+    footer_y = y1 - pad - 54
     title = _font(30, bold=True)
     sub = _font(18, bold=False)
     h2 = _font(22, bold=True)
@@ -232,10 +234,6 @@ def render_receipt_png(receipt: Dict[str, Any], out_path: str):
         d.text((lx, y), f"Impact: {step.get('impact', '')}", font=small, fill=MUTED)
         y += 34
 
-    footer_y = y1 - pad - 54
-    def _ensure_room(needed: int) -> bool:
-        # Return True if there is room for 'needed' vertical pixels before footer.
-        return (y + needed) <= (footer_y - 22)
     d.line((lx, footer_y - 18, rx, footer_y - 18), fill=HAIRLINE, width=2)
     for ln in _wrap(d, "Privacy: no titles/subjects/names. Ranges + normalized labels only.", small, rx - lx)[:2]:
         d.text((lx, footer_y), ln, font=small, fill=MUTED)
