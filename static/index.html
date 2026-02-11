@@ -631,6 +631,46 @@ async function makeReceipt(){
   document.getElementById('variantName').textContent = last.variant_name || last.variant_key || '';
   document.getElementById('tagline').textContent = last.house_motto || last.variant_means || '';
 
+  // Maria actions + variant explanation
+  const variantExplain = document.getElementById('variantExplain');
+  if(variantExplain) variantExplain.textContent = last.variant_means || '';
+
+  const mariaList = document.getElementById('mariaDo');
+  if(mariaList){
+    mariaList.innerHTML = '';
+    const acts = Array.isArray(last.maria_actions) ? last.maria_actions : [];
+    (acts.length ? acts : ['Automate the busywork tied to this pattern (coming soon).']).slice(0,6).forEach(t=>{
+      const li = document.createElement('li');
+      li.textContent = t;
+      mariaList.appendChild(li);
+    });
+  }
+
+  const fastestWin = document.getElementById('fastestWin');
+  if(fastestWin) fastestWin.textContent = last.fastest_win || '';
+
+  // Cheat sheet rendering (other Work Modes)
+  const csWrap = document.getElementById('cheatSheet');
+  if(csWrap){
+    csWrap.innerHTML = '';
+    const cs = last.cheat_sheet || {};
+    // Expect: {house_key: {one_liner, improve}, ...} or {houses:[...]}
+    const entries = cs.houses ? cs.houses : Object.values(cs);
+    (Array.isArray(entries) ? entries : []).slice(0,8).forEach(item=>{
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.style.padding = '12px';
+      card.style.borderRadius = '16px';
+      card.innerHTML = `
+        <div style="font-weight:700;">${item.name || item.house_name || ''}</div>
+        <div class="muted" style="margin-top:4px;">${item.one_liner || item.tagline || ''}</div>
+        <div style="margin-top:8px; font-size:13px;"><b>Improve:</b> ${item.improve || item.how_to_improve || ''}</div>
+      `;
+      csWrap.appendChild(card);
+    });
+  }
+
+
   const badgeImg = document.getElementById('badgeImg');
   const receiptImg = document.getElementById('receiptImg');
   if(badgeImg) badgeImg.src = last.badge_url || ('/b/' + encodeURIComponent(last.receipt_id) + '.png');
