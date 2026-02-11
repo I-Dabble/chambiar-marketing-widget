@@ -421,6 +421,12 @@ h1, .c-kicker, .c-sub, .c-pill { overflow-wrap:anywhere; word-break:break-word; 
 .c-modal__actions{ justify-content:flex-end; }
 
 .modal .backdrop{ cursor:pointer; }
+
+/* SPACING_TWEAKS */
+.row{gap:12px;}
+.card{margin-bottom:12px;}
+#optinBox{margin-top:18px;}
+#out{margin-top:22px;}
 </style>
 <link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/></head>
 <body><div id="app">
@@ -523,32 +529,8 @@ h1, .c-kicker, .c-sub, .c-pill { overflow-wrap:anywhere; word-break:break-word; 
 </div>
 </div>
 
-<div class="muted" style="margin:0 0 12px 0;">Add your email and choose what you want — or leave it blank and still get your results.</div>
 
-    <label style="display:block; font-weight:600; margin:0 0 6px;">Email</label>
-    <input id="optin_email" placeholder="you@example.com" style="width:100%; padding:14px; border-radius:14px; border:1px solid rgba(230,233,240,1); background:#fff;" />
-
-    <div style="height:12px;"></div>
-    <div style="background:#fff; border:1px solid rgba(230,233,240,1); border-radius:14px; padding:12px;">
-      <label style="display:flex; gap:10px; align-items:flex-start; font-size:14px; margin:0 0 10px 0;">
-        <input checked id="optin_notify_launch" type="checkbox" style="margin-top:2px;"/> Notify me when Chambiar is available
-      </label>
-      <label style="display:flex; gap:10px; align-items:flex-start; font-size:14px; margin:0 0 10px 0;">
-        <input id="optin_beta_tester" type="checkbox" style="margin-top:2px;"/> I want to be a Beta Tester
-      </label>
-      <label style="display:flex; gap:10px; align-items:flex-start; font-size:14px; margin:0;">
-        <input id="optin_newsletter" type="checkbox" style="margin-top:2px;"/> Subscribe me to the newsletter
-      </label>
-    </div>
-
-    <div class="row" style="margin-top:12px;">
-      </div>
-    <div class="muted" id="optin_status" style="margin-top:8px;"></div>
-  </div>
-</div>
-
-
-<div id="optinBox" style="margin-top:14px; max-width:520px;">
+<div id="optinBox" style="margin-top:18px; max-width:520px;">
   <div class="card" style="padding:12px; border-radius:16px; background: rgba(246,248,252,.85); border:1px solid rgba(230,233,240,1);">
     <div class="muted" style="margin:0 0 10px 0;">Optional: add your email to get updates.</div>
 
@@ -606,25 +588,26 @@ async function makeReceipt(){
   const statusEl = document.getElementById('status');
   if(statusEl) statusEl.textContent = 'Generating…';
 
+  // These IDs match the form fields in this widget
   const answers = {
-    q1_meeting_hours: val('q1'),
-    q2_interrupt: val('q2'),
-    q2a_interrupt_freq: val('q2a'),
-    q3_after_hours: val('q3'),
-    q3a_after_hours_hours: val('q3a'),
-    q4_email_backlog: val('q4'),
-    q5_manageable: val('q5'),
-    q5a_behind_freq: val('q5a'),
-    q6_response_pressure: val('q6'),
-    q6a_why: val('q6a'),
-    q7_collab_slow: val('q7'),
-    q7a_collab_people: val('q7a'),
-    q8_notifications: val('q8'),
-    q8a_interrupt_freq: val('q8a'),
-    q9_meeting_heavy_days: val('q9'),
-    q10_drained: val('q10'),
-    q11_admin: val('q11'),
-    q11a_admin_time: val('q11a'),
+    meeting_hours_range: val('meeting_hours_range'),
+    meet_interrupts: val('meet_interrupts'),
+    meet_interrupt_freq: val('meet_interrupt_freq'),
+    after_hours_meetings: val('after_hours_meetings'),
+    after_hours_hours_range: val('after_hours_hours_range'),
+    email_backlog_range: val('email_backlog_range'),
+    email_manageable: val('email_manageable'),
+    email_behind_freq: val('email_behind_freq'),
+    response_pressure: val('response_pressure'),
+    response_pressure_why: val('response_pressure_why'),
+    collab_slow: val('collab_slow'),
+    collab_people: val('collab_people'),
+    notif_interrupts: val('notif_interrupts'),
+    notif_interrupt_freq: val('notif_interrupt_freq'),
+    meeting_heavy_days: val('meeting_heavy_days'),
+    drained: val('drained'),
+    admin_tasks: val('admin_tasks'),
+    admin_time_range: val('admin_time_range'),
   };
 
   const res = await fetch('/api/receipt', {
@@ -634,7 +617,8 @@ async function makeReceipt(){
   });
 
   if(!res.ok){
-    throw new Error('receipt api failed: ' + res.status);
+    const t = await res.text().catch(()=> '');
+    throw new Error('receipt api failed: ' + res.status + ' ' + t);
   }
   last = await res.json();
   window.__lastReceipt = last;
@@ -647,13 +631,11 @@ async function makeReceipt(){
   document.getElementById('variantName').textContent = last.variant || '';
   document.getElementById('tagline').textContent = last.tagline || '';
 
-  // badge/receipt images
   const badgeImg = document.getElementById('badgeImg');
   const receiptImg = document.getElementById('receiptImg');
   if(badgeImg) badgeImg.src = '/api/badge.png?rid=' + encodeURIComponent(last.receipt_id);
   if(receiptImg) receiptImg.src = '/api/receipt.png?rid=' + encodeURIComponent(last.receipt_id);
 
-  // download links
   const dlBadge = document.getElementById('dlBadge');
   const dlReceipt = document.getElementById('dlReceipt');
   if(dlBadge) dlBadge.href = '/api/badge.png?rid=' + encodeURIComponent(last.receipt_id);
