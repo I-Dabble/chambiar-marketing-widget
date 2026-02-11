@@ -9,6 +9,40 @@ import datetime as dt, uuid, datetime as dt
 from receipt_engine import build_receipt
 from renderer import render_receipt_png, render_badge_png
 
+import os, smtplib
+from email.message import EmailMessage
+
+def _send_optin_email(to_addr: str, subject: str, body: str) -> tuple[bool, str]:
+    # Uses SMTP settings from env vars. If not configured, returns (False, 'not_configured')
+    host = os.getenv("SMTP_HOST", "").strip()
+    port = int(os.getenv("SMTP_PORT", "587"))
+    user = os.getenv("SMTP_USER", "").strip()
+    pw = os.getenv("SMTP_PASS", "").strip()
+    from_addr = os.getenv("SMTP_FROM", user or "noreply@chambiar.ai").strip()
+
+    if not host or not from_addr:
+        return (False, "not_configured")
+
+    msg = EmailMessage()
+    msg["From"] = from_addr
+    msg["To"] = to_addr
+    msg["Subject"] = subject
+    msg.set_content(body)
+
+    try:
+        with smtplib.SMTP(host, port, timeout=20) as s:
+            s.ehlo()
+            if os.getenv("SMTP_TLS", "1") not in ("0", "false", "False"):
+                s.starttls()
+                s.ehlo()
+            if user and pw:
+                s.login(user, pw)
+            s.send_message(msg)
+        return (True, "")
+    except Exception as e:
+        return (False, str(e))
+
+
 BASE = Path(__file__).resolve().parent
 DATA = BASE / "data"
 RECEIPTS = DATA / "receipts"
@@ -80,6 +114,38 @@ async def _append_subscriber(payload: dict):
         f.write(json.dumps(record) + "\n")
 
     return JSONResponse({"ok": True})
+
+
+@app.post("/api/optin")
+async def optin(request: Request):
+    payload = await request.json()
+    payload = payload or {}
+    email = (payload.get("email") or "").strip()
+    prefs = {
+        "beta_tester": bool(payload.get("beta_tester")),
+        "newsletter": bool(payload.get("newsletter")),
+        "notify_launch": bool(payload.get("notify_launch")),
+    }
+    # If no email, do nothing (success)
+    if not email or "@" not in email:
+        return JSONResponse({"ok": True, "skipped": True})
+
+    to_addr = os.getenv("OPTIN_TO_EMAIL", "ryan@chambiar.ai").strip() or "ryan@chambiar.ai"
+    checked = [k for k,v in prefs.items() if v]
+    checked_str = ", ".join(checked) if checked else "(none selected)"
+    subject = f"Chambiar Widget Opt-in: {email}"
+    body = (
+        f"New opt-in submission\n\n"
+        f"Email: {email}\n"
+        f"Selected: {checked_str}\n"
+        f"Submitted at (UTC): {dt.datetime.utcnow().isoformat()}Z\n"
+    )
+    sent, err = _send_optin_email(to_addr, subject, body)
+    if sent:
+        return JSONResponse({"ok": True, "sent": True})
+    # Not configured or failed: don't block user flow, but report for debugging
+    return JSONResponse({"ok": True, "sent": False, "error": err})
+
 
 @app.post("/api/subscribe")
 async def subscribe(request: Request):

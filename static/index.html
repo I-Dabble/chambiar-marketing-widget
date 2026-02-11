@@ -523,7 +523,7 @@ h1, .c-kicker, .c-sub, .c-pill { overflow-wrap:anywhere; word-break:break-word; 
 </div>
 </div>
 
-<div class="muted" style="margin:0 0 12px 0;">Add your email and choose what you want — or leave it blank and still get your results.</div>
+<div class="muted" style="margin:0 0 12px 0;">Optional: add your email to get updates (or leave it blank).</div>
 
     <label style="display:block; font-weight:600; margin:0 0 6px;">Email</label>
     <input id="optin_email" placeholder="you@example.com" style="width:100%; padding:14px; border-radius:14px; border:1px solid rgba(230,233,240,1); background:#fff;" />
@@ -541,9 +541,6 @@ h1, .c-kicker, .c-sub, .c-pill { overflow-wrap:anywhere; word-break:break-word; 
       </label>
     </div>
 
-    <div class="row" style="margin-top:12px;">
-      <button id="getResultsBtn" type="button">Get me my results</button>
-    </div>
     <div class="muted" id="optin_status" style="margin-top:8px;"></div>
   </div>
 </div>
@@ -601,41 +598,6 @@ h1, .c-kicker, .c-sub, .c-pill { overflow-wrap:anywhere; word-break:break-word; 
 </div>
 <script>
 let last = null;
-function openOptin(){
-  const m = document.getElementById('optinModal');
-  if(!m) return;
-  m.classList.add('is-open');
-  m.setAttribute('aria-hidden','false');
-  document.body.style.overflow='hidden';
-}
-function closeOptin(){
-  const m = document.getElementById('optinModal');
-  if(!m) return;
-  m.classList.remove('is-open');
-  m.setAttribute('aria-hidden','true');
-  document.body.style.overflow='';
-}
-async function optinThenResults(){
-  closeOptin();
-  await makeReceipt();
-  // If email provided, save opt-in (non-blocking)
-  const email = (document.getElementById('optin_email')?.value || '').trim();
-  if(email){
-    const payload = {
-      email,
-      notify_launch: !!document.getElementById('optin_notify_launch')?.checked,
-      beta_tester: !!document.getElementById('optin_beta_tester')?.checked,
-      newsletter: !!document.getElementById('optin_newsletter')?.checked,
-      source: 'optin_modal',
-      receipt_id: window.__lastReceipt?.receipt_id,
-      house: window.__lastReceipt?.house,
-      variant: window.__lastReceipt?.variant,
-      top_areas: window.__lastReceipt?.top_areas
-    };
-    try{
-      const res = await fetch('/api/subscribe', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
-      const j = await res.json().catch(()=>({}));
-      if(res.ok && j.ok){ localStorage.setItem('chambiar_opted_in','true'); }
     }catch(e){}
   }
   // Hide bottom opt-in if already opted in
@@ -846,33 +808,7 @@ goBtn?.addEventListener('click', async (e)=>{ e.preventDefault(); await runResul
 
 
 
-// AFTER_RESULTS_OPTIN_FLOW
-window.addEventListener('DOMContentLoaded', () => {
-  const revealBtn = document.getElementById('revealBtn');
-  const optin = document.getElementById('optinAfter');
-  const saveBtn = document.getElementById('optin_save');
-  const status = document.getElementById('optin_status');
-
-  async function subscribeIfEmail(){
-    const email = (document.getElementById('optin_email')?.value || '').trim();
-    if(!email){
-      if(status) status.textContent = 'Skipped — no email provided.';
-      return false;
-    }
-    const payload = {
-      email,
-      notify_launch: !!document.getElementById('optin_notify_launch')?.checked,
-      beta_tester: !!document.getElementById('optin_beta_tester')?.checked,
-      newsletter: !!document.getElementById('optin_newsletter')?.checked,
-      source: 'after_results_optin',
-      receipt_id: window.__lastReceipt?.receipt_id,
-      house: window.__lastReceipt?.house,
-      variant: window.__lastReceipt?.variant,
-      top_areas: window.__lastReceipt?.top_areas
-    };
-    try{
-      const res = await fetch('/api/subscribe', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
-      const j = await res.json().catch(()=>({}));
+const j = await res.json().catch(()=>({}));
       if(res.ok && j.ok){
         localStorage.setItem('chambiar_opted_in','true');
         if(status) status.textContent = 'Saved. Thanks — we’ll be in touch.';
@@ -912,6 +848,66 @@ window.addEventListener('DOMContentLoaded', () => {
       await subscribeIfEmail();
     } finally {
       saveBtn.disabled = false;
+    }
+  });
+});
+
+
+
+
+// REVEAL_FLOW_WITH_OPTIN_EMAIL
+window.addEventListener('DOMContentLoaded', () => {
+  const revealBtn = document.getElementById('revealBtn');
+  const statusEl = document.getElementById('status');
+  const optinStatus = document.getElementById('optin_status');
+
+  async function sendOptinIfEmail(){
+    const email = (document.getElementById('optin_email')?.value || '').trim();
+    if(!email) return {skipped:true};
+    const payload = {
+      email,
+      notify_launch: !!document.getElementById('optin_notify_launch')?.checked,
+      beta_tester: !!document.getElementById('optin_beta_tester')?.checked,
+      newsletter: !!document.getElementById('optin_newsletter')?.checked
+    };
+    try{
+      const res = await fetch('/api/optin', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+      });
+      return await res.json().catch(()=>({ok:false}));
+    }catch(e){
+      return {ok:false, error:String(e)};
+    }
+  }
+
+  revealBtn?.addEventListener('click', async (e) => {
+    e.preventDefault();
+    revealBtn.disabled = true;
+    if(statusEl) statusEl.textContent = 'Generating your Work Mode…';
+
+    // 1) If email provided, notify Ryan with checked prefs (non-blocking; do not stop results)
+    if(optinStatus) optinStatus.textContent = '';
+    const email = (document.getElementById('optin_email')?.value || '').trim();
+    if(email){
+      if(optinStatus) optinStatus.textContent = 'Saving your opt-in…';
+      const r = await sendOptinIfEmail();
+      if(optinStatus){
+        optinStatus.textContent = (r && r.ok) ? '' : 'Could not save opt-in right now.';
+      }
+    }
+
+    // 2) Then generate and render results (work mode + variant + receipt)
+    try{
+      await makeReceipt();
+      document.getElementById('out')?.scrollIntoView({behavior:'smooth', block:'start'});
+      if(statusEl) statusEl.textContent = '';
+    }catch(err){
+      console.error(err);
+      if(statusEl) statusEl.textContent = 'Something went wrong — please try again.';
+    } finally {
+      revealBtn.disabled = false;
     }
   });
 });
