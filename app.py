@@ -75,7 +75,7 @@ async def receipt_lite(request: Request):
     receipt = build_receipt(payload or {})
     rid = _save_receipt(receipt)
     top2 = sorted(receipt["signals"]["scores"].items(), key=lambda kv: kv[1], reverse=True)[:2]
-        return {
+    return {
         "receipt_id": rid,
         "receipt_url": f"/r/{rid}",
         "image_url": f"/i/{rid}.png",
