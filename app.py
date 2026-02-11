@@ -13,12 +13,12 @@ import os, smtplib
 from email.message import EmailMessage
 
 def _send_optin_email(to_addr: str, subject: str, body: str) -> tuple[bool, str]:
-    # Uses SMTP settings from env vars. If not configured, returns (False, 'not_configured')
     host = os.getenv("SMTP_HOST", "").strip()
     port = int(os.getenv("SMTP_PORT", "587"))
     user = os.getenv("SMTP_USER", "").strip()
     pw = os.getenv("SMTP_PASS", "").strip()
     from_addr = os.getenv("SMTP_FROM", user or "noreply@chambiar.ai").strip()
+    use_tls = os.getenv("SMTP_TLS", "1") not in ("0","false","False")
 
     if not host or not from_addr:
         return (False, "not_configured")
@@ -32,7 +32,7 @@ def _send_optin_email(to_addr: str, subject: str, body: str) -> tuple[bool, str]
     try:
         with smtplib.SMTP(host, port, timeout=20) as s:
             s.ehlo()
-            if os.getenv("SMTP_TLS", "1") not in ("0", "false", "False"):
+            if use_tls:
                 s.starttls()
                 s.ehlo()
             if user and pw:
@@ -122,10 +122,11 @@ async def optin(request: Request):
     payload = payload or {}
     email = (payload.get("email") or "").strip()
     prefs = {
+        "notify_launch": bool(payload.get("notify_launch")),
         "beta_tester": bool(payload.get("beta_tester")),
         "newsletter": bool(payload.get("newsletter")),
-        "notify_launch": bool(payload.get("notify_launch")),
     }
+
     # If no email, do nothing (success)
     if not email or "@" not in email:
         return JSONResponse({"ok": True, "skipped": True})
@@ -140,11 +141,10 @@ async def optin(request: Request):
         f"Selected: {checked_str}\n"
         f"Submitted at (UTC): {dt.datetime.utcnow().isoformat()}Z\n"
     )
+
     sent, err = _send_optin_email(to_addr, subject, body)
-    if sent:
-        return JSONResponse({"ok": True, "sent": True})
-    # Not configured or failed: don't block user flow, but report for debugging
-    return JSONResponse({"ok": True, "sent": False, "error": err})
+    # Never block user flow
+    return JSONResponse({"ok": True, "sent": sent, "error": err if not sent else ""})
 
 
 @app.post("/api/subscribe")

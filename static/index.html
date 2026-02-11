@@ -441,7 +441,7 @@ h1, .c-kicker, .c-sub, .c-pill { overflow-wrap:anywhere; word-break:break-word; 
 <div class="c-card-b" id="quizCard">
 <div class="wrap">
 <div class="c-card">
-<h1>Which Work Mode House are you?</h1>
+<h1>Which Work Mode type are you?</h1>
 <div class="muted">60-second archetype quiz +  receipt. .</div>
 <div class="grid">
 <div>
@@ -523,7 +523,7 @@ h1, .c-kicker, .c-sub, .c-pill { overflow-wrap:anywhere; word-break:break-word; 
 </div>
 </div>
 
-<div class="muted" style="margin:0 0 12px 0;">Optional: add your email to get updates (or leave it blank).</div>
+<div class="muted" style="margin:0 0 12px 0;">Add your email and choose what you want — or leave it blank and still get your results.</div>
 
     <label style="display:block; font-weight:600; margin:0 0 6px;">Email</label>
     <input id="optin_email" placeholder="you@example.com" style="width:100%; padding:14px; border-radius:14px; border:1px solid rgba(230,233,240,1); background:#fff;" />
@@ -541,6 +541,32 @@ h1, .c-kicker, .c-sub, .c-pill { overflow-wrap:anywhere; word-break:break-word; 
       </label>
     </div>
 
+    <div class="row" style="margin-top:12px;">
+      </div>
+    <div class="muted" id="optin_status" style="margin-top:8px;"></div>
+  </div>
+</div>
+
+
+<div id="optinBox" style="margin-top:14px; max-width:520px;">
+  <div class="card" style="padding:12px; border-radius:16px; background: rgba(246,248,252,.85); border:1px solid rgba(230,233,240,1);">
+    <div class="muted" style="margin:0 0 10px 0;">Optional: add your email to get updates.</div>
+
+    <label style="display:block; font-weight:600; margin:0 0 6px;">Email</label>
+    <input id="optin_email" placeholder="you@example.com" style="width:100%; padding:12px; border-radius:12px; border:1px solid rgba(230,233,240,1); background:#fff;" />
+
+    <div style="height:10px;"></div>
+    <div style="background:#fff; border:1px solid rgba(230,233,240,1); border-radius:12px; padding:10px;">
+      <label style="display:flex; gap:10px; align-items:flex-start; font-size:14px; margin:0 0 8px 0;">
+        <input checked id="optin_notify_launch" type="checkbox" style="margin-top:2px;"/> Notify me when Chambiar is available
+      </label>
+      <label style="display:flex; gap:10px; align-items:flex-start; font-size:14px; margin:0 0 8px 0;">
+        <input id="optin_beta_tester" type="checkbox" style="margin-top:2px;"/> I want to be a Beta Tester
+      </label>
+      <label style="display:flex; gap:10px; align-items:flex-start; font-size:14px; margin:0;">
+        <input id="optin_newsletter" type="checkbox" style="margin-top:2px;"/> Subscribe me to the newsletter
+      </label>
+    </div>
     <div class="muted" id="optin_status" style="margin-top:8px;"></div>
   </div>
 </div>
@@ -569,336 +595,113 @@ h1, .c-kicker, .c-sub, .c-pill { overflow-wrap:anywhere; word-break:break-word; 
 </div>
 <div style="height:14px;"></div>
 <div id="bottomOptIn">
-<h3 style="margin:0 0 8px 0;">Stay close to the launch</h3>
-<div class="muted" style="margin-bottom:10px;">One email. Choose what you want. No spam.</div>
-<div class="row" style="align-items:flex-start;">
-<div style="flex:1; min-width:260px;">
-<input id="email" placeholder="you@example.com" style="flex:1; min-width:260px; width:100%;"/>
-<div style="height:10px;"></div>
-<div style="background:#f6f8fc; border:1px solid #e6e6e6; border-radius:14px; padding:12px;">
-<label style="display:flex; gap:10px; align-items:center; font-size:14px; margin:0 0 10px 0;">
-<input checked="" id="notify_launch" type="checkbox"/>
-                Notify me when Chambiar is available
-              </label>
-<label style="display:flex; gap:10px; align-items:center; font-size:14px; margin:0 0 10px 0;">
-<input id="beta_tester" type="checkbox"/>
-                I want to be a Beta Tester
-              </label>
-<label style="display:flex; gap:10px; align-items:center; font-size:14px; margin:0;">
-<input id="newsletter" type="checkbox"/>
-                Subscribe me to the newsletter
-              </label>
-</div>
-</div>
-<button onclick="signup()">Save my preferences</button>
-</div>
-<div class="muted" id="msg" style="margin-top:8px;"></div>
-</div>
-</div>
-</div>
+
 <script>
 let last = null;
-    }catch(e){}
+
+function val(id){ return (document.getElementById(id)?.value || '').trim(); }
+function checked(id){ return !!document.getElementById(id)?.checked; }
+
+async function makeReceipt(){
+  const statusEl = document.getElementById('status');
+  if(statusEl) statusEl.textContent = 'Generating…';
+
+  const answers = {
+    q1_meeting_hours: val('q1'),
+    q2_interrupt: val('q2'),
+    q2a_interrupt_freq: val('q2a'),
+    q3_after_hours: val('q3'),
+    q3a_after_hours_hours: val('q3a'),
+    q4_email_backlog: val('q4'),
+    q5_manageable: val('q5'),
+    q5a_behind_freq: val('q5a'),
+    q6_response_pressure: val('q6'),
+    q6a_why: val('q6a'),
+    q7_collab_slow: val('q7'),
+    q7a_collab_people: val('q7a'),
+    q8_notifications: val('q8'),
+    q8a_interrupt_freq: val('q8a'),
+    q9_meeting_heavy_days: val('q9'),
+    q10_drained: val('q10'),
+    q11_admin: val('q11'),
+    q11a_admin_time: val('q11a'),
+  };
+
+  const res = await fetch('/api/receipt', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(answers)
+  });
+
+  if(!res.ok){
+    throw new Error('receipt api failed: ' + res.status);
   }
-  // Hide bottom opt-in if already opted in
-  const opted = localStorage.getItem('chambiar_opted_in') === 'true';
-  const bottom = document.getElementById('bottomOptIn');
-  if(bottom) bottom.style.display = opted ? 'none' : 'block';
+  last = await res.json();
+  window.__lastReceipt = last;
+
+  // show outputs
+  const out = document.getElementById('out');
+  if(out) out.style.display = 'block';
+
+  document.getElementById('workModeName').textContent = last.house || '';
+  document.getElementById('variantName').textContent = last.variant || '';
+  document.getElementById('tagline').textContent = last.tagline || '';
+
+  // badge/receipt images
+  const badgeImg = document.getElementById('badgeImg');
+  const receiptImg = document.getElementById('receiptImg');
+  if(badgeImg) badgeImg.src = '/api/badge.png?rid=' + encodeURIComponent(last.receipt_id);
+  if(receiptImg) receiptImg.src = '/api/receipt.png?rid=' + encodeURIComponent(last.receipt_id);
+
+  // download links
+  const dlBadge = document.getElementById('dlBadge');
+  const dlReceipt = document.getElementById('dlReceipt');
+  if(dlBadge) dlBadge.href = '/api/badge.png?rid=' + encodeURIComponent(last.receipt_id);
+  if(dlReceipt) dlReceipt.href = '/api/receipt.png?rid=' + encodeURIComponent(last.receipt_id);
+
+  if(statusEl) statusEl.textContent = '';
 }
 
-async function makeReceipt() {
-  document.getElementById('status').textContent = "Determining Your Work Mode…";
+async function sendOptinIfEmail(){
+  const email = val('optin_email');
+  if(!email) return {skipped:true};
   const payload = {
-    week_of: "Last week",
-    meeting_hours_range: document.getElementById('meeting_hours_range').value,
-    meet_interrupts: document.getElementById('meet_interrupts').value,
-    after_hours_hours_range: document.getElementById('after_hours_hours_range').value,
-    email_backlog_range: document.getElementById('email_backlog_range').value,
-    email_behind_freq: document.getElementById('email_behind_freq').value,
-    response_pressure: document.getElementById('response_pressure').value,
-    notif_interrupt_freq: document.getElementById('notif_interrupt_freq').value,
-    collab_people: document.getElementById('collab_people').value
+    email,
+    notify_launch: checked('optin_notify_launch'),
+    beta_tester: checked('optin_beta_tester'),
+    newsletter: checked('optin_newsletter')
   };
-  const res = await fetch('/api/receipt-lite', {
+  const res = await fetch('/api/optin', {
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body: JSON.stringify(payload)
   });
-  const data = await res.json();
-  last = data;
-  document.getElementById('status').textContent = "";
-  document.getElementById('out').style.display = "block";
-  document.getElementById('img').src = data.image_url;
-  document.getElementById('badge').src = data.badge_url;
-  document.getElementById('share').href = data.receipt_url;
-  document.getElementById('download').href = data.image_url;
-  document.getElementById('badge_dl').href = data.badge_url;
+  return await res.json().catch(()=>({ok:false}));
 }
 
-async function signup() {
-  if(!last) return;
-  const email = document.getElementById('email').value;
-  const res = await fetch('/api/subscribe', {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({
-      email,
-      receipt_id: last.receipt_id,
-      house: last.house,
-      variant: last.variant,
-      top_areas: last.top_areas,
-      notify_launch: (document.getElementById('notify_launch')?.checked ?? true),
-      beta_tester: (document.getElementById('beta_tester')?.checked ?? false),
-      newsletter: (document.getElementById('newsletter')?.checked ?? false),
-      source: 'quiz_page'
-    })
-  });
-  const data = await res.json();
-  const msg = document.getElementById('msg');
-  msg.textContent = data.ok ? "Saved. We’ll follow up based on what you chose." : (data.error || "Something went wrong.");
-}
-
-
-
-// --- UI bindings (no inline onclick dependency) ---
-window.addEventListener('DOMContentLoaded', () => {
-  const modal = document.getElementById('optinModal');
-  console.log('bindings ready', {revealBtn: !!document.getElementById('revealBtn'), optin_go: !!document.getElementById('optin_go'), modal: !!modal});
-  function openOptin(){
-    if(!modal) return;
-    modal.classList.add('is-open');
-    modal.setAttribute('aria-hidden','false');
-    document.body.style.overflow='hidden';
-  }
-  function closeOptin(){
-    if(!modal) return;
-    modal.classList.remove('is-open');
-    modal.setAttribute('aria-hidden','true');
-    document.body.style.overflow='';
-  }
-  async function optinThenResults(){
-    closeOptin();
-    await makeReceipt();
-    // save opt-in if email present
-    const email = (document.getElementById('optin_email')?.value || '').trim();
-    if(email){
-      const payload = {
-        email,
-        notify_launch: !!document.getElementById('optin_notify_launch')?.checked,
-        beta_tester: !!document.getElementById('optin_beta_tester')?.checked,
-        newsletter: !!document.getElementById('optin_newsletter')?.checked,
-        source: 'optin_modal',
-        receipt_id: window.__lastReceipt?.receipt_id,
-        house: window.__lastReceipt?.house,
-        variant: window.__lastReceipt?.variant,
-        top_areas: window.__lastReceipt?.top_areas
-      };
-      try{
-        const res = await fetch('/api/subscribe', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
-        const j = await res.json().catch(()=>({}));
-        if(res.ok && j.ok){ localStorage.setItem('chambiar_opted_in','true'); }
-      }catch(e){}
-    }
-    const opted = localStorage.getItem('chambiar_opted_in') === 'true';
-    const bottom = document.getElementById('bottomOptIn');
-    if(bottom) bottom.style.display = opted ? 'none' : 'block';
-  }
-
-  // expose (helps if something still calls inline)
-  window.openOptin = openOptin;
-  window.closeOptin = closeOptin;
-  window.optinThenResults = optinThenResults;
-
-  document.getElementById('revealBtn')?.addEventListener('click', (e)=>{
-    e.preventDefault();
-    openOptin();
-  });
-
-  document.getElementById('optin_go')?.addEventListener('click', async (e)=>{
-    e.preventDefault();
-    await optinThenResults();
-  });
-
-  modal?.addEventListener('click', (e)=>{
-    if(e.target?.dataset?.close) closeOptin();
-  });
-  document.addEventListener('keydown', (e)=>{
-    if(e.key === 'Escape' && modal?.classList.contains('is-open')) closeOptin();
-  });
-
-  window.addEventListener('DOMContentLoaded', ()=>{
-    const opted = localStorage.getItem('chambiar_opted_in') === 'true';
-    const bottom = document.getElementById('bottomOptIn');
-    if(bottom) bottom.style.display = opted ? 'none' : 'block';
-  });
-});
-
-
-goBtn?.addEventListener('click', async (e)=>{ e.preventDefault(); await runResults(); });
-
-  modal?.addEventListener('click', (e)=>{
-    if(e.target?.dataset?.close) closeOptin();
-  });
-  document.addEventListener('keydown', (e)=>{
-    if(e.key === 'Escape' && modal?.classList.contains('is-open')) closeOptin();
-  });
-});
-
-
-
-}
-
-  async function subscribeIfEmail(){
-    const email = (document.getElementById('optin_email')?.value || '').trim();
-    if(!email) return false;
-
-    const payload = {
-      email,
-      notify_launch: !!document.getElementById('optin_notify_launch')?.checked,
-      beta_tester: !!document.getElementById('optin_beta_tester')?.checked,
-      newsletter: !!document.getElementById('optin_newsletter')?.checked,
-      source: 'inline_optin',
-      receipt_id: window.__lastReceipt?.receipt_id,
-      house: window.__lastReceipt?.house,
-      variant: window.__lastReceipt?.variant,
-      top_areas: window.__lastReceipt?.top_areas
-    };
-
-    try{
-      const res = await fetch('/api/subscribe', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify(payload)
-      });
-      const j = await res.json().catch(()=>({}));
-      if(res.ok && j.ok){
-        localStorage.setItem('chambiar_opted_in', 'true');
-        return true;
-      }
-    }catch(e){}
-    return false;
-  }
-
-  revealBtn?.addEventListener('click', (e)=>{
-    e.preventDefault();
-    showInline();
-  });
-
-  getBtn?.addEventListener('click', async (e)=>{
-    e.preventDefault();
-    if(status) status.textContent = 'Generating your Work Mode…';
-    getBtn.disabled = true;
-    try{
-      await makeReceipt(); // renders work mode + variant + receipt
-      if(status) status.textContent = 'Saving preferences…';
-      await subscribeIfEmail(); // no-op if email blank
-      if(status) status.textContent = '';
-      // Hide the opt-in section after results render (optional)
-      if(inline) inline.style.display = 'none';
-      document.getElementById('result')?.scrollIntoView({behavior:'smooth', block:'start'});
-    } catch(err){
-      console.error(err);
-      if(status) status.textContent = 'Something went wrong — please try again.';
-    } finally {
-      getBtn.disabled = false;
-    }
-  });
-});
-
-
-
-
-const j = await res.json().catch(()=>({}));
-      if(res.ok && j.ok){
-        localStorage.setItem('chambiar_opted_in','true');
-        if(status) status.textContent = 'Saved. Thanks — we’ll be in touch.';
-        return true;
-      }
-    }catch(e){}
-    if(status) status.textContent = 'Could not save right now. Please try again.';
-    return false;
-  }
-
-  revealBtn?.addEventListener('click', async (e) => {
-    e.preventDefault();
-    const statusEl = document.getElementById('status');
-    if(statusEl) statusEl.textContent = 'Generating your Work Mode…';
-    revealBtn.disabled = true;
-    try{
-      await makeReceipt();
-      if(optin){
-        const opted = localStorage.getItem('chambiar_opted_in') === 'true';
-        optin.style.display = opted ? 'none' : 'block';
-      }
-      document.getElementById('result')?.scrollIntoView({behavior:'smooth', block:'start'});
-      if(statusEl) statusEl.textContent = '';
-    } catch (err){
-      console.error(err);
-      if(statusEl) statusEl.textContent = 'Something went wrong — please try again.';
-    } finally {
-      revealBtn.disabled = false;
-    }
-  });
-
-  saveBtn?.addEventListener('click', async (e) => {
-    e.preventDefault();
-    if(status) status.textContent = 'Saving…';
-    saveBtn.disabled = true;
-    try{
-      await subscribeIfEmail();
-    } finally {
-      saveBtn.disabled = false;
-    }
-  });
-});
-
-
-
-
-// REVEAL_FLOW_WITH_OPTIN_EMAIL
 window.addEventListener('DOMContentLoaded', () => {
   const revealBtn = document.getElementById('revealBtn');
   const statusEl = document.getElementById('status');
   const optinStatus = document.getElementById('optin_status');
 
-  async function sendOptinIfEmail(){
-    const email = (document.getElementById('optin_email')?.value || '').trim();
-    if(!email) return {skipped:true};
-    const payload = {
-      email,
-      notify_launch: !!document.getElementById('optin_notify_launch')?.checked,
-      beta_tester: !!document.getElementById('optin_beta_tester')?.checked,
-      newsletter: !!document.getElementById('optin_newsletter')?.checked
-    };
-    try{
-      const res = await fetch('/api/optin', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify(payload)
-      });
-      return await res.json().catch(()=>({ok:false}));
-    }catch(e){
-      return {ok:false, error:String(e)};
-    }
-  }
-
   revealBtn?.addEventListener('click', async (e) => {
     e.preventDefault();
     revealBtn.disabled = true;
     if(statusEl) statusEl.textContent = 'Generating your Work Mode…';
 
-    // 1) If email provided, notify Ryan with checked prefs (non-blocking; do not stop results)
-    if(optinStatus) optinStatus.textContent = '';
-    const email = (document.getElementById('optin_email')?.value || '').trim();
-    if(email){
-      if(optinStatus) optinStatus.textContent = 'Saving your opt-in…';
-      const r = await sendOptinIfEmail();
-      if(optinStatus){
-        optinStatus.textContent = (r && r.ok) ? '' : 'Could not save opt-in right now.';
+    // 1) Optional opt-in email (only if email provided). Never blocks results.
+    try{
+      const email = val('optin_email');
+      if(email){
+        if(optinStatus) optinStatus.textContent = 'Sending…';
+        await sendOptinIfEmail();
+        if(optinStatus) optinStatus.textContent = '';
       }
+    }catch(_e){
+      if(optinStatus) optinStatus.textContent = 'Could not send opt-in right now.';
     }
 
-    // 2) Then generate and render results (work mode + variant + receipt)
+    // 2) Generate + render results
     try{
       await makeReceipt();
       document.getElementById('out')?.scrollIntoView({behavior:'smooth', block:'start'});
@@ -911,7 +714,6 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
-
 </script>
 </div>
 </div>
