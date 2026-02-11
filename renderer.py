@@ -135,9 +135,12 @@ def render_receipt_png(receipt: Dict[str, Any], out_path: str):
     pad = 46
     lx, rx = x0 + pad, x1 - pad
     y = y0 + pad
-
-    # --- layout guard: ensure we don't render past the footer ---
+    # --- layout guard: prevent drawing into footer ---
     footer_y = y1 - pad - 54
+    def _ensure_room(needed: int) -> bool:
+        return (y + needed) <= (footer_y - 22)
+
+
     title = _font(30, bold=True)
     sub = _font(18, bold=False)
     h2 = _font(22, bold=True)
