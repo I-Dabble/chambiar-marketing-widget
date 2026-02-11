@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Work Mode Archetype (MVP)</title>
+<style>
+:root{
+  --ink:#0E1014;
+  --muted:#5C6270;
+  --hair:#E6E9F0;
+  --paper:#FCFCFD;
+  --paper2:#F6F8FC;
+
+  --a1:#00ABFF;   /* Current */
+  --a2:#A462F0;   /* Council */
+  --a3:#2EC86A;   /* Glue */
+  --a4:#F7931A;   /* Calendar */
+
+  --radius-xl:28px;
+  --radius-lg:22px;
+  --shadow: 0 22px 70px rgba(14,16,20,.10);
+  --shadow-2: 0 10px 26px rgba(14,16,20,.08);
+}
+
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  color:var(--ink);
+  background:
+    radial-gradient(900px 500px at 18% 10%, rgba(0,171,255,.14), transparent 55%),
+    radial-gradient(900px 500px at 85% 18%, rgba(164,98,240,.14), transparent 55%),
+    radial-gradient(900px 600px at 70% 90%, rgba(46,200,106,.10), transparent 60%),
+    linear-gradient(180deg, var(--paper) 0%, var(--paper2) 100%);
+}
+
+a{ color:inherit; text-decoration:none; }
+
+.c-shell{
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 34px 18px 48px;
+}
+
+.c-hero{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:18px;
+  margin-bottom: 18px;
+}
+
+.c-brand{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.c-kicker{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  font-weight:700;
+  font-size:12px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+
+.c-pip{
+  width:10px;height:10px;border-radius:10px;
+  background: linear-gradient(135deg, var(--a1), var(--a2));
+}
+
+h1{
+  margin:0;
+  font-size:44px;
+  line-height:1.06;
+  letter-spacing:-.03em;
+}
+
+.c-sub{
+  margin:0;
+  color:var(--muted);
+  font-size:16px;
+  line-height:1.5;
+  max-width: 62ch;
+}
+
+.c-top-actions{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+.c-btn{
+  border:1px solid var(--hair);
+  background: rgba(255,255,255,.75);
+  backdrop-filter: blur(10px);
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-weight:600;
+  font-size:14px;
+  cursor:pointer;
+  box-shadow: var(--shadow-2);
+}
+
+.c-btn.primary{
+  border:none;
+  background: linear-gradient(135deg, var(--ink), #1D2130);
+  color:#fff;
+  padding: 11px 16px;
+}
+
+.c-grid{
+  display:grid;
+  grid-template-columns: 1fr;
+  gap:16px;
+}
+
+
+@media (max-width: 920px){
+  h1{ font-size:36px; }
+}
+
+  h1{ font-size:36px; }
+}
+
+.c-card{
+  background: rgba(255,255,255,.82);
+  border: 1px solid rgba(230,233,240,.95);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(12px);
+  overflow:hidden;
+}
+
+.c-card-h{
+  padding: 18px 18px 0;
+}
+
+.c-card-b{
+  padding: 18px;
+}
+
+.c-rule{
+  height:1px;
+  background: linear-gradient(90deg, transparent, rgba(230,233,240,1), transparent);
+  margin: 16px 0;
+}
+
+.c-progress{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.c-bar{
+  flex:1;
+  height:10px;
+  background: rgba(235,238,244,1);
+  border-radius: 999px;
+  overflow:hidden;
+}
+
+.c-bar > span{
+  display:block;
+  height:100%;
+  width:0%;
+  background: linear-gradient(90deg, var(--a1), var(--a2));
+}
+
+.c-q{
+  font-size:20px;
+  font-weight:700;
+  letter-spacing:-.01em;
+  margin:0 0 10px;
+}
+
+.c-options{
+  display:grid;
+  gap:10px;
+}
+
+.c-opt{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding: 14px 14px;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(230,233,240,1);
+  background: rgba(246,248,252,.85);
+  cursor:pointer;
+  transition: transform .08s ease, border-color .12s ease, background .12s ease;
+}
+
+.c-opt:hover{
+  transform: translateY(-1px);
+  border-color: rgba(0,171,255,.35);
+  background: rgba(255,255,255,.9);
+}
+
+.c-opt .label{
+  font-weight:600;
+}
+
+.c-pill{
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color: var(--muted);
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding: 10px 12px;
+  border-radius:999px;
+  background: rgba(246,248,252,.9);
+  border: 1px solid rgba(230,233,240,1);
+}
+
+.c-pill b{ color:var(--ink); letter-spacing:0; text-transform:none; font-size:12px; }
+
+.c-footer-actions{
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+  margin-top: 14px;
+}
+
+.c-input{
+  width:100%;
+  padding: 14px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(230,233,240,1);
+  background: rgba(246,248,252,.9);
+  font-size:15px;
+  outline:none;
+}
+
+.c-input:focus{
+  border-color: rgba(0,171,255,.5);
+  box-shadow: 0 0 0 4px rgba(0,171,255,.12);
+  background: #fff;
+}
+
+.c-checks{
+  display:grid;
+  gap:10px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(230,233,240,1);
+  background: rgba(246,248,252,.7);
+}
+
+.c-ck{
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  font-size:14px;
+  color: var(--ink);
+}
+
+.c-ck input{
+  width:18px;height:18px;margin-top:2px;
+  accent-color: var(--a2);
+}
+
+.c-muted{ color: var(--muted); }
+.c-small{ font-size:12px; color: var(--muted); }
+
+.c-result-grid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 700px){
+  .c-result-grid{ grid-template-columns:1fr; }
+}
+
+.c-tile{
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(230,233,240,1);
+  background: rgba(246,248,252,.8);
+  padding: 14px;
+}
+
+.c-tile h3{ margin:0 0 6px; font-size:15px; }
+.c-tile p{ margin:0; color:var(--muted); font-size:13px; }
+
+
+
+/* Prevent double headings from legacy inner markup */
+#quizCard .wrap h1{ display:none; }
+#quizCard .wrap .muted{ margin-bottom:12px; }
+#quizCard label{ display:block; font-weight:600; margin: 0 0 6px; }
+#quizCard select, #quizCard input{ width:100%; }
+#quizCard .wrap{ max-width:100%; }
+#quizCard .grid{ display:grid; grid-template-columns: 1fr; gap:12px; }
+@media(min-width: 980px){ #quizCard .grid{ grid-template-columns: 1fr 1fr; } }
+
+
+/* --- Overflow + button fixes --- */
+.c-shell, .c-card, .c-card-b, #quizCard { overflow-wrap:anywhere; word-break:break-word; }
+h1, .c-kicker, .c-sub, .c-pill { overflow-wrap:anywhere; word-break:break-word; }
+
+.c-top-actions { flex-wrap:wrap; }
+.c-btn { white-space:normal; line-height:1.2; }
+
+#quizCard button, #quizCard .btn, #quizCard .c-btn,
+#quizCard a { white-space:normal; }
+
+#quizCard .wrap h2, #quizCard .wrap h3, #quizCard .wrap p { overflow-wrap:anywhere; }
+#quizCard .wrap { max-width:100%; }
+
+@media (max-width: 520px){
+  h1{ font-size:32px !important; }
+  .c-btn{ width:100%; justify-content:center; text-align:center; }
+}
+
+/* Modal */
+.c-modal{ display:none; }
+.c-modal.is-open{ display:block; }
+.c-modal__backdrop{
+  position:fixed; inset:0;
+  background:rgba(14,16,20,.55);
+  backdrop-filter: blur(10px);
+  z-index:9998;
+}
+.c-modal__panel{
+  position:fixed;
+  left:50%; top:50%;
+  transform:translate(-50%,-50%);
+  width:min(760px, 94vw);
+  background:rgba(255,255,255,.92);
+  border:1px solid rgba(230,233,240,.95);
+  border-radius:28px;
+  box-shadow: 0 25px 90px rgba(0,0,0,.22);
+  z-index:9999;
+  overflow:hidden;
+}
+.c-modal__head{
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+  padding:18px 18px 14px;
+  background: linear-gradient(180deg, rgba(246,248,252,.95), rgba(255,255,255,.92));
+}
+.c-modal__kicker{
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.c-modal__title{
+  margin-top:6px;
+  font-size:22px;
+  font-weight:800;
+  letter-spacing:-.02em;
+}
+.c-modal__sub{
+  margin-top:6px;
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.45;
+}
+.c-modal__x{
+  border:1px solid rgba(230,233,240,1);
+  background:rgba(255,255,255,.75);
+  border-radius:14px;
+  width:40px;height:40px;
+  cursor:pointer;
+}
+.c-modal__body{ padding:16px 18px 18px; }
+.c-modal__actions{
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+  margin-top:14px;
+}
+.c-btn--ghost{
+  background: rgba(255,255,255,.75);
+  border:1px solid rgba(230,233,240,1);
+}
+@media (max-width: 520px){
+  .c-modal__actions .c-btn{ width:100%; }
+}
+
+.c-top-actions{ flex-wrap:wrap; }
+.c-btn{ white-space:normal; line-height:1.2; }
+
+/* Force question order (single column) */
+#quizCard .grid{ display:grid !important; grid-template-columns: 1fr !important; gap:12px !important; }
+#quizCard .grid > *{ min-width:0; }
+
+#quizCard label, #quizCard .label{ max-width:100%; display:block; }
+#quizCard button{ max-width:100%; }
+
+.c-logo{
+  height: 50px;
+  width: auto;
+  margin-left: 8px;
+  opacity: .9;
+}
+@media (max-width: 520px){
+  .c-logo{ height: 24px; }
+}
+
+/* single-button modal */
+.c-modal__actions{ justify-content:flex-end; }
+
+.modal .backdrop{ cursor:pointer; }
+</style>
+<link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/></head>
+<body><div id="app">
+<div class="c-shell">
+<div class="c-hero">
+<div class="c-brand">
+<div class="c-kicker"><span class="c-pip"></span> Chambiar • Work Mode Quiz</div>
+<h1>Which Work Mode type are you?</h1>
+<p class="c-sub">A 60‑second quiz that generates a LinkedIn badge + a Work Mode Receipt — plus a preview of what Maria will do at launch.</p>
+</div>
+<div class="c-top-actions">
+      <img class="c-logo" src="/static/chambiar-logo.png" alt="Chambiar" />
+<a class="c-btn" href="/r/demo" onclick="return false;">View demo</a>
+</div>
+</div>
+<div class="c-grid" id="quiz">
+<div class="c-card">
+<div class="c-card-b" id="quizCard">
+<div class="wrap">
+<div class="c-card">
+<h1>Which Work Mode House are you?</h1>
+<div class="muted">60-second archetype quiz +  receipt. .</div>
+<div class="grid">
+<div>
+<label>Q1: How many hours of meetings did you have last week?</label>
+<select id="meeting_hours_range">
+<option value="">Select</option>
+<option value="0-5">Less than 5</option>
+<option value="5-10">5–10</option>
+<option value="10-15">10–15</option>
+<option value="15-20">15–20</option>
+<option value="20+">20+</option>
+</select>
+</div>
+<div>
+<label>Q2a: How often did meetings interrupt focus work?</label>
+<select id="meet_interrupts">
+<option value="">Select</option>
+<option value="A few times">A few times</option>
+<option value="Most days">Most days</option>
+<option value="Every day">Every day</option>
+</select>
+</div>
+<div>
+<label>Q3a: About how many hours were after-hours meetings?</label>
+<select id="after_hours_hours_range">
+<option value="">Select</option>
+<option value="0-0.5">None</option>
+<option value="0.5-1">Less than 1</option>
+<option value="1-3">1–3</option>
+<option value="3-5">3–5</option>
+<option value="5+">5+</option>
+</select>
+</div>
+<div>
+<label>Q4: About how many emails are waiting for a response?</label>
+<select id="email_backlog_range">
+<option value="">Select</option>
+<option value="0-10">0–10</option>
+<option value="10-30">10–30</option>
+<option value="30-60">30–60</option>
+<option value="60+">60+</option>
+</select>
+</div>
+<div>
+<label>Q5a: How often did you feel behind on email?</label>
+<select id="email_behind_freq">
+<option value="">Select</option>
+<option value="Sometimes">Sometimes</option>
+<option value="Most days">Most days</option>
+<option value="Constantly">Constantly</option>
+</select>
+</div>
+<div>
+<label>Q6: Did you feel slower than expected responding?</label>
+<select id="response_pressure">
+<option value="">Select</option>
+<option value="Yes">Yes</option>
+<option value="No">No</option>
+</select>
+</div>
+<div>
+<label>Q7a: How often were you interrupted by notifications?</label>
+<select id="notif_interrupt_freq">
+<option value="">Select</option>
+<option value="A few times a day">A few times a day</option>
+<option value="Every hour">Every hour</option>
+<option value="Multiple times an hour">Multiple times an hour</option>
+<option value="Constantly">Constantly</option>
+</select>
+</div>
+<div>
+<label>Q8a: How many people are typically involved in the same work?</label>
+<select id="collab_people">
+<option value="">Select</option>
+<option value="3-5">3–5</option>
+<option value="6-10">6–10</option>
+<option value="10+">10+</option>
+</select>
+</div>
+</div>
+
+<div class="muted" style="margin:0 0 12px 0;">Add your email and choose what you want — or leave it blank and still get your results.</div>
+
+    <label style="display:block; font-weight:600; margin:0 0 6px;">Email</label>
+    <input id="optin_email" placeholder="you@example.com" style="width:100%; padding:14px; border-radius:14px; border:1px solid rgba(230,233,240,1); background:#fff;" />
+
+    <div style="height:12px;"></div>
+    <div style="background:#fff; border:1px solid rgba(230,233,240,1); border-radius:14px; padding:12px;">
+      <label style="display:flex; gap:10px; align-items:flex-start; font-size:14px; margin:0 0 10px 0;">
+        <input checked id="optin_notify_launch" type="checkbox" style="margin-top:2px;"/> Notify me when Chambiar is available
+      </label>
+      <label style="display:flex; gap:10px; align-items:flex-start; font-size:14px; margin:0 0 10px 0;">
+        <input id="optin_beta_tester" type="checkbox" style="margin-top:2px;"/> I want to be a Beta Tester
+      </label>
+      <label style="display:flex; gap:10px; align-items:flex-start; font-size:14px; margin:0;">
+        <input id="optin_newsletter" type="checkbox" style="margin-top:2px;"/> Subscribe me to the newsletter
+      </label>
+    </div>
+
+    <div class="row" style="margin-top:12px;">
+      <button id="getResultsBtn" type="button">Get me my results</button>
+    </div>
+    <div class="muted" id="optin_status" style="margin-top:8px;"></div>
+  </div>
+</div>
+
+<div class="row">
+<button id="revealBtn" type="button">Reveal my Work Mode</button>
+<div class="muted" id="status"></div>
+</div>
+<div id="out" style="display:none;">
+<div class="two">
+<div>
+<h3 style="margin:12px 0 8px 0;">LinkedIn Badge (best for posting)</h3>
+<img alt="Badge" id="badge"/>
+<div class="row">
+<a href="#" id="badge_dl"><button>Download badge</button></a>
+<a href="#" id="share"><button style="background:#2b2b2b;">Open share page</button></a>
+</div>
+</div>
+<div>
+<h3 style="margin:12px 0 8px 0;">Full Receipt (proof + plan)</h3>
+<img alt="Receipt" id="img"/>
+<div class="row">
+<a href="#" id="download"><button>Download receipt</button></a>
+</div>
+</div>
+</div>
+<div style="height:14px;"></div>
+<div id="bottomOptIn">
+<h3 style="margin:0 0 8px 0;">Stay close to the launch</h3>
+<div class="muted" style="margin-bottom:10px;">One email. Choose what you want. No spam.</div>
+<div class="row" style="align-items:flex-start;">
+<div style="flex:1; min-width:260px;">
+<input id="email" placeholder="you@example.com" style="flex:1; min-width:260px; width:100%;"/>
+<div style="height:10px;"></div>
+<div style="background:#f6f8fc; border:1px solid #e6e6e6; border-radius:14px; padding:12px;">
+<label style="display:flex; gap:10px; align-items:center; font-size:14px; margin:0 0 10px 0;">
+<input checked="" id="notify_launch" type="checkbox"/>
+                Notify me when Chambiar is available
+              </label>
+<label style="display:flex; gap:10px; align-items:center; font-size:14px; margin:0 0 10px 0;">
+<input id="beta_tester" type="checkbox"/>
+                I want to be a Beta Tester
+              </label>
+<label style="display:flex; gap:10px; align-items:center; font-size:14px; margin:0;">
+<input id="newsletter" type="checkbox"/>
+                Subscribe me to the newsletter
+              </label>
+</div>
+</div>
+<button onclick="signup()">Save my preferences</button>
+</div>
+<div class="muted" id="msg" style="margin-top:8px;"></div>
+</div>
+</div>
+</div>
+<script>
+let last = null;
+function openOptin(){
+  const m = document.getElementById('optinModal');
+  if(!m) return;
+  m.classList.add('is-open');
+  m.setAttribute('aria-hidden','false');
+  document.body.style.overflow='hidden';
+}
+function closeOptin(){
+  const m = document.getElementById('optinModal');
+  if(!m) return;
+  m.classList.remove('is-open');
+  m.setAttribute('aria-hidden','true');
+  document.body.style.overflow='';
+}
+async function optinThenResults(){
+  closeOptin();
+  await makeReceipt();
+  // If email provided, save opt-in (non-blocking)
+  const email = (document.getElementById('optin_email')?.value || '').trim();
+  if(email){
+    const payload = {
+      email,
+      notify_launch: !!document.getElementById('optin_notify_launch')?.checked,
+      beta_tester: !!document.getElementById('optin_beta_tester')?.checked,
+      newsletter: !!document.getElementById('optin_newsletter')?.checked,
+      source: 'optin_modal',
+      receipt_id: window.__lastReceipt?.receipt_id,
+      house: window.__lastReceipt?.house,
+      variant: window.__lastReceipt?.variant,
+      top_areas: window.__lastReceipt?.top_areas
+    };
+    try{
+      const res = await fetch('/api/subscribe', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
+      const j = await res.json().catch(()=>({}));
+      if(res.ok && j.ok){ localStorage.setItem('chambiar_opted_in','true'); }
+    }catch(e){}
+  }
+  // Hide bottom opt-in if already opted in
+  const opted = localStorage.getItem('chambiar_opted_in') === 'true';
+  const bottom = document.getElementById('bottomOptIn');
+  if(bottom) bottom.style.display = opted ? 'none' : 'block';
+}
+
+async function makeReceipt() {
+  document.getElementById('status').textContent = "Determining Your Work Mode…";
+  const payload = {
+    week_of: "Last week",
+    meeting_hours_range: document.getElementById('meeting_hours_range').value,
+    meet_interrupts: document.getElementById('meet_interrupts').value,
+    after_hours_hours_range: document.getElementById('after_hours_hours_range').value,
+    email_backlog_range: document.getElementById('email_backlog_range').value,
+    email_behind_freq: document.getElementById('email_behind_freq').value,
+    response_pressure: document.getElementById('response_pressure').value,
+    notif_interrupt_freq: document.getElementById('notif_interrupt_freq').value,
+    collab_people: document.getElementById('collab_people').value
+  };
+  const res = await fetch('/api/receipt-lite', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
+  });
+  const data = await res.json();
+  last = data;
+  document.getElementById('status').textContent = "";
+  document.getElementById('out').style.display = "block";
+  document.getElementById('img').src = data.image_url;
+  document.getElementById('badge').src = data.badge_url;
+  document.getElementById('share').href = data.receipt_url;
+  document.getElementById('download').href = data.image_url;
+  document.getElementById('badge_dl').href = data.badge_url;
+}
+
+async function signup() {
+  if(!last) return;
+  const email = document.getElementById('email').value;
+  const res = await fetch('/api/subscribe', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      email,
+      receipt_id: last.receipt_id,
+      house: last.house,
+      variant: last.variant,
+      top_areas: last.top_areas,
+      notify_launch: (document.getElementById('notify_launch')?.checked ?? true),
+      beta_tester: (document.getElementById('beta_tester')?.checked ?? false),
+      newsletter: (document.getElementById('newsletter')?.checked ?? false),
+      source: 'quiz_page'
+    })
+  });
+  const data = await res.json();
+  const msg = document.getElementById('msg');
+  msg.textContent = data.ok ? "Saved. We’ll follow up based on what you chose." : (data.error || "Something went wrong.");
+}
+
+
+
+// --- UI bindings (no inline onclick dependency) ---
+window.addEventListener('DOMContentLoaded', () => {
+  const modal = document.getElementById('optinModal');
+  console.log('bindings ready', {revealBtn: !!document.getElementById('revealBtn'), optin_go: !!document.getElementById('optin_go'), modal: !!modal});
+  function openOptin(){
+    if(!modal) return;
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden','false');
+    document.body.style.overflow='hidden';
+  }
+  function closeOptin(){
+    if(!modal) return;
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden','true');
+    document.body.style.overflow='';
+  }
+  async function optinThenResults(){
+    closeOptin();
+    await makeReceipt();
+    // save opt-in if email present
+    const email = (document.getElementById('optin_email')?.value || '').trim();
+    if(email){
+      const payload = {
+        email,
+        notify_launch: !!document.getElementById('optin_notify_launch')?.checked,
+        beta_tester: !!document.getElementById('optin_beta_tester')?.checked,
+        newsletter: !!document.getElementById('optin_newsletter')?.checked,
+        source: 'optin_modal',
+        receipt_id: window.__lastReceipt?.receipt_id,
+        house: window.__lastReceipt?.house,
+        variant: window.__lastReceipt?.variant,
+        top_areas: window.__lastReceipt?.top_areas
+      };
+      try{
+        const res = await fetch('/api/subscribe', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
+        const j = await res.json().catch(()=>({}));
+        if(res.ok && j.ok){ localStorage.setItem('chambiar_opted_in','true'); }
+      }catch(e){}
+    }
+    const opted = localStorage.getItem('chambiar_opted_in') === 'true';
+    const bottom = document.getElementById('bottomOptIn');
+    if(bottom) bottom.style.display = opted ? 'none' : 'block';
+  }
+
+  // expose (helps if something still calls inline)
+  window.openOptin = openOptin;
+  window.closeOptin = closeOptin;
+  window.optinThenResults = optinThenResults;
+
+  document.getElementById('revealBtn')?.addEventListener('click', (e)=>{
+    e.preventDefault();
+    openOptin();
+  });
+
+  document.getElementById('optin_go')?.addEventListener('click', async (e)=>{
+    e.preventDefault();
+    await optinThenResults();
+  });
+
+  modal?.addEventListener('click', (e)=>{
+    if(e.target?.dataset?.close) closeOptin();
+  });
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'Escape' && modal?.classList.contains('is-open')) closeOptin();
+  });
+
+  window.addEventListener('DOMContentLoaded', ()=>{
+    const opted = localStorage.getItem('chambiar_opted_in') === 'true';
+    const bottom = document.getElementById('bottomOptIn');
+    if(bottom) bottom.style.display = opted ? 'none' : 'block';
+  });
+});
+
+
+goBtn?.addEventListener('click', async (e)=>{ e.preventDefault(); await runResults(); });
+
+  modal?.addEventListener('click', (e)=>{
+    if(e.target?.dataset?.close) closeOptin();
+  });
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'Escape' && modal?.classList.contains('is-open')) closeOptin();
+  });
+});
+
+
+
+}
+
+  async function subscribeIfEmail(){
+    const email = (document.getElementById('optin_email')?.value || '').trim();
+    if(!email) return false;
+
+    const payload = {
+      email,
+      notify_launch: !!document.getElementById('optin_notify_launch')?.checked,
+      beta_tester: !!document.getElementById('optin_beta_tester')?.checked,
+      newsletter: !!document.getElementById('optin_newsletter')?.checked,
+      source: 'inline_optin',
+      receipt_id: window.__lastReceipt?.receipt_id,
+      house: window.__lastReceipt?.house,
+      variant: window.__lastReceipt?.variant,
+      top_areas: window.__lastReceipt?.top_areas
+    };
+
+    try{
+      const res = await fetch('/api/subscribe', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+      });
+      const j = await res.json().catch(()=>({}));
+      if(res.ok && j.ok){
+        localStorage.setItem('chambiar_opted_in', 'true');
+        return true;
+      }
+    }catch(e){}
+    return false;
+  }
+
+  revealBtn?.addEventListener('click', (e)=>{
+    e.preventDefault();
+    showInline();
+  });
+
+  getBtn?.addEventListener('click', async (e)=>{
+    e.preventDefault();
+    if(status) status.textContent = 'Generating your Work Mode…';
+    getBtn.disabled = true;
+    try{
+      await makeReceipt(); // renders work mode + variant + receipt
+      if(status) status.textContent = 'Saving preferences…';
+      await subscribeIfEmail(); // no-op if email blank
+      if(status) status.textContent = '';
+      // Hide the opt-in section after results render (optional)
+      if(inline) inline.style.display = 'none';
+      document.getElementById('result')?.scrollIntoView({behavior:'smooth', block:'start'});
+    } catch(err){
+      console.error(err);
+      if(status) status.textContent = 'Something went wrong — please try again.';
+    } finally {
+      getBtn.disabled = false;
+    }
+  });
+});
+
+
+
+
+// AFTER_RESULTS_OPTIN_FLOW
+window.addEventListener('DOMContentLoaded', () => {
+  const revealBtn = document.getElementById('revealBtn');
+  const optin = document.getElementById('optinAfter');
+  const saveBtn = document.getElementById('optin_save');
+  const status = document.getElementById('optin_status');
+
+  async function subscribeIfEmail(){
+    const email = (document.getElementById('optin_email')?.value || '').trim();
+    if(!email){
+      if(status) status.textContent = 'Skipped — no email provided.';
+      return false;
+    }
+    const payload = {
+      email,
+      notify_launch: !!document.getElementById('optin_notify_launch')?.checked,
+      beta_tester: !!document.getElementById('optin_beta_tester')?.checked,
+      newsletter: !!document.getElementById('optin_newsletter')?.checked,
+      source: 'after_results_optin',
+      receipt_id: window.__lastReceipt?.receipt_id,
+      house: window.__lastReceipt?.house,
+      variant: window.__lastReceipt?.variant,
+      top_areas: window.__lastReceipt?.top_areas
+    };
+    try{
+      const res = await fetch('/api/subscribe', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
+      const j = await res.json().catch(()=>({}));
+      if(res.ok && j.ok){
+        localStorage.setItem('chambiar_opted_in','true');
+        if(status) status.textContent = 'Saved. Thanks — we’ll be in touch.';
+        return true;
+      }
+    }catch(e){}
+    if(status) status.textContent = 'Could not save right now. Please try again.';
+    return false;
+  }
+
+  revealBtn?.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const statusEl = document.getElementById('status');
+    if(statusEl) statusEl.textContent = 'Generating your Work Mode…';
+    revealBtn.disabled = true;
+    try{
+      await makeReceipt();
+      if(optin){
+        const opted = localStorage.getItem('chambiar_opted_in') === 'true';
+        optin.style.display = opted ? 'none' : 'block';
+      }
+      document.getElementById('result')?.scrollIntoView({behavior:'smooth', block:'start'});
+      if(statusEl) statusEl.textContent = '';
+    } catch (err){
+      console.error(err);
+      if(statusEl) statusEl.textContent = 'Something went wrong — please try again.';
+    } finally {
+      revealBtn.disabled = false;
+    }
+  });
+
+  saveBtn?.addEventListener('click', async (e) => {
+    e.preventDefault();
+    if(status) status.textContent = 'Saving…';
+    saveBtn.disabled = true;
+    try{
+      await subscribeIfEmail();
+    } finally {
+      saveBtn.disabled = false;
+    }
+  });
+});
+
+</script>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+
+<script data-optin="1">
+(function(){
+  const modal = document.getElementById('optinModal');
+  const emailEl = document.getElementById('optin_email');
+  const cNotify = document.getElementById('optin_notify');
+  const cBeta = document.getElementById('optin_beta');
+  const cNews = document.getElementById('optin_news');
+  const btnSubmit = document.getElementById('optin_submit');
+
+  function openModal(){
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden','false');
+    document.body.style.overflow='hidden';
+  }
+  function closeModal(){
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden','true');
+    document.body.style.overflow='';
+  }
+
+  modal?.addEventListener('click', (e)=>{ if(e.target && e.target.matches('[data-close]')) closeModal(); });
+  window.addEventListener('keydown', (e)=>{ if(e.key === 'Escape' && modal.classList.contains('is-open')) closeModal(); });
+
+  async function subscribe(payload){
+    try{
+      const res = await fetch('/api/subscribe', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
+      const j = await res.json().catch(()=>({}));
+      if(res.ok && j.ok){
+        localStorage.setItem('chambiar_opted_in', 'true');
+        return true;
+      }
+    }catch(e){}
+    return false;
+  }
+
+  function bottomOptInShow(show){
+    const el = document.getElementById('bottomOptIn');
+    if(el) el.style.display = show ? 'block' : 'none';
+  }
+
+  function ensureBottomOptIn(){
+    const result = document.getElementById('result');
+    if(!result) return;
+    if(document.getElementById('bottomOptIn')) return;
+
+    const card = document.createElement('div');
+    card.id = 'bottomOptIn';
+    card.className = 'c-card';
+    card.style.marginTop = '16px';
+    card.innerHTML = `
+      <div class="c-card-b">
+        <div class="c-pill">Optional <b>Stay close to Chambiar</b></div>
+        <div class="c-rule"></div>
+        <label class="c-label">Email</label>
+        <input id="bottom_email" class="c-input" placeholder="you@example.com"/>
+        <div class="c-checks" style="margin-top:12px;">
+          <label class="c-ck"><input type="checkbox" id="bottom_notify" checked> Notify me when Chambiar is available</label>
+          <label class="c-ck"><input type="checkbox" id="bottom_beta"> I want to be a Beta Tester</label>
+          <label class="c-ck"><input type="checkbox" id="bottom_news"> Subscribe me to the newsletter</label>
+        </div>
+        <div class="c-footer-actions" style="margin-top:14px;">
+          <button class="c-btn c-primary" id="bottom_submit" type="button">Save my preferences</button>
+        </div>
+        <div class="c-small" style="margin-top:10px;">No spam. You can unsubscribe anytime.</div>
+      </div>
+    `;
+    result.appendChild(card);
+
+    document.getElementById('bottom_submit')?.addEventListener('click', async ()=>{
+      const email = (document.getElementById('bottom_email').value || '').trim();
+      if(!email){ alert('Please enter an email.'); return; }
+      const last = window.__lastReceipt || {};
+      const ok = await subscribe({
+        email,
+        notify_launch: !!document.getElementById('bottom_notify').checked,
+        beta_tester: !!document.getElementById('bottom_beta').checked,
+        newsletter: !!document.getElementById('bottom_news').checked,
+        source: 'bottom_optin',
+        receipt_id: last.receipt_id,
+        house: last.house,
+        variant: last.variant,
+        top_areas: last.top_areas
+      });
+      if(ok) bottomOptInShow(false);
+    });
+  }
+
+  async function getResultsThenMaybeOptIn(save){
+    closeModal();
+    if(typeof window.makeReceipt === 'function'){
+      await window.makeReceipt();
+    }
+    ensureBottomOptIn();
+    const opted = localStorage.getItem('chambiar_opted_in') === 'true';
+    bottomOptInShow(!opted);
+  }
+
+  function findCTA(){
+    const btns = Array.from(document.querySelectorAll('button'));
+    return btns.find(b => /get my work mode|reveal/i.test((b.textContent||'').trim())) || null;
+  }
+  const cta = findCTA();
+  if(cta){
+    cta.textContent = "Get my Work Mode";
+    cta.addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); openModal(); }, true);
+  }
+
+        }
+    ensureBottomOptIn();
+    const opted = localStorage.getItem('chambiar_opted_in') === 'true';
+    bottomOptInShow(!opted);
+  });
+
+
+  btnSubmit?.addEventListener('click', async ()=>{
+    closeModal();
+    // Always generate results
+    if(typeof window.makeReceipt === 'function'){
+      await window.makeReceipt();
+    }
+    // If they provided email, attempt to save preferences (non-blocking)
+    const email = (emailEl?.value || '').trim();
+    if(email){
+      const last = window.__lastReceipt || {};
+      await subscribe({
+        email,
+        notify_launch: !!cNotify?.checked,
+        beta_tester: !!cBeta?.checked,
+        newsletter: !!cNews?.checked,
+        source: 'optin_modal',
+        receipt_id: last.receipt_id,
+        house: last.house,
+        variant: last.variant,
+        top_areas: last.top_areas
+      });
+    }
+    ensureBottomOptIn();
+    const opted = localStorage.getItem('chambiar_opted_in') === 'true';
+    bottomOptInShow(!opted);
+  });
+
+});
+
+</script>
+
+</body>
+</html>
