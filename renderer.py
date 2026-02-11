@@ -234,6 +234,7 @@ def render_receipt_png(receipt: Dict[str, Any], out_path: str):
         d.text((lx, y), f"Impact: {step.get('impact', '')}", font=small, fill=MUTED)
         y += 34
 
+    footer_y = y1 - pad - 54
     d.line((lx, footer_y - 18, rx, footer_y - 18), fill=HAIRLINE, width=2)
     for ln in _wrap(d, "Privacy: no titles/subjects/names. Ranges + normalized labels only.", small, rx - lx)[:2]:
         d.text((lx, footer_y), ln, font=small, fill=MUTED)
