@@ -610,7 +610,7 @@ async function makeReceipt(){
     admin_time_range: val('admin_time_range'),
   };
 
-  const res = await fetch('/api/receipt', {
+  const res = await fetch('/api/receipt-lite', {
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body: JSON.stringify(answers)
@@ -627,19 +627,19 @@ async function makeReceipt(){
   const out = document.getElementById('out');
   if(out) out.style.display = 'block';
 
-  document.getElementById('workModeName').textContent = last.house || '';
-  document.getElementById('variantName').textContent = last.variant || '';
-  document.getElementById('tagline').textContent = last.tagline || '';
+  document.getElementById('workModeName').textContent = last.house_name || last.house_key || '';
+  document.getElementById('variantName').textContent = last.variant_name || last.variant_key || '';
+  document.getElementById('tagline').textContent = last.house_motto || last.variant_means || '';
 
   const badgeImg = document.getElementById('badgeImg');
   const receiptImg = document.getElementById('receiptImg');
-  if(badgeImg) badgeImg.src = '/api/badge.png?rid=' + encodeURIComponent(last.receipt_id);
-  if(receiptImg) receiptImg.src = '/api/receipt.png?rid=' + encodeURIComponent(last.receipt_id);
+  if(badgeImg) badgeImg.src = last.badge_url || ('/b/' + encodeURIComponent(last.receipt_id) + '.png');
+  if(receiptImg) receiptImg.src = last.image_url || ('/i/' + encodeURIComponent(last.receipt_id) + '.png');
 
   const dlBadge = document.getElementById('dlBadge');
   const dlReceipt = document.getElementById('dlReceipt');
-  if(dlBadge) dlBadge.href = '/api/badge.png?rid=' + encodeURIComponent(last.receipt_id);
-  if(dlReceipt) dlReceipt.href = '/api/receipt.png?rid=' + encodeURIComponent(last.receipt_id);
+  if(dlBadge) dlBadge.href = last.badge_url || ('/b/' + encodeURIComponent(last.receipt_id) + '.png');
+  if(dlReceipt) dlReceipt.href = last.image_url || ('/i/' + encodeURIComponent(last.receipt_id) + '.png');
 
   if(statusEl) statusEl.textContent = '';
 }

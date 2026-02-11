@@ -75,13 +75,28 @@ async def receipt_lite(request: Request):
     receipt = build_receipt(payload or {})
     rid = _save_receipt(receipt)
     top2 = sorted(receipt["signals"]["scores"].items(), key=lambda kv: kv[1], reverse=True)[:2]
-    return {
+        return {
         "receipt_id": rid,
         "receipt_url": f"/r/{rid}",
         "image_url": f"/i/{rid}.png",
         "badge_url": f"/b/{rid}.png",
-        "house": receipt["house_key"],
-        "variant": receipt["variant_key"],
+
+        # keys for UI
+        "house_key": receipt["house_key"],
+        "house_name": receipt["house_name"],
+        "house_motto": receipt["house_motto"],
+        "house_strength": receipt["house_strength"],
+        "house_shadow": receipt["house_shadow"],
+
+        "variant_key": receipt["variant_key"],
+        "variant_name": receipt["variant_name"],
+        "variant_means": receipt["variant_means"],
+        "fastest_win": receipt["fastest_win"],
+
+        "maria_actions": receipt.get("maria_actions", []),
+        "reclaim_plan": receipt.get("reclaim_plan", []),
+        "cheat_sheet": receipt.get("cheat_sheet", {}),
+
         "top_areas": top2,
     }
 
