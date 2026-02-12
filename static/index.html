@@ -558,20 +558,43 @@ h1, .c-kicker, .c-sub, .c-pill { overflow-wrap:anywhere; word-break:break-word; 
 <div class="muted" id="status"></div>
 </div>
 <div id="out" style="display:none;">
+<div class="card" style="padding:14px; margin-top:14px;">
+  <div class="pill">Your Work Mode</div>
+  <h2 style="margin:10px 0 4px 0;"><span id="workModeName">—</span> <span class="muted">/</span> <span id="variantName">—</span></h2>
+  <div class="muted" id="tagline" style="margin-top:6px;">—</div>
+</div>
+
 <div class="two">
 <div>
 <h3 style="margin:12px 0 8px 0;">LinkedIn Badge (best for posting)</h3>
-<img alt="Badge" id="badge"/>
+<img alt="Badge" id="badgeImg"/>
 <div class="row">
-<a href="#" id="badge_dl"><button>Download badge</button></a>
+<a href="#" id="dlBadge"><button>Download badge</button></a>
 <a href="#" id="share"><button style="background:#2b2b2b;">Open share page</button></a>
 </div>
 </div>
 <div>
 <h3 style="margin:12px 0 8px 0;">Full Receipt (proof + plan)</h3>
-<img alt="Receipt" id="img"/>
+<img alt="Receipt" id="receiptImg"/>
 <div class="row">
-<a href="#" id="download"><button>Download receipt</button></a>
+<a href="#" id="dlReceipt"><button>Download receipt</button></a>
+
+<div class="two" style="margin-top:16px;">
+  <div class="card" style="padding:14px;">
+    <div class="pill">Fastest win (this week)</div>
+    <div id="fastestWin" style="margin-top:10px;">—</div>
+    <div class="muted" id="variantMeans" style="margin-top:10px;">—</div>
+  </div>
+  <div class="card" style="padding:14px;">
+    <div class="pill">What Maria will do for you</div>
+    <ul id="mariaActions" style="margin:10px 0 0 18px;"></ul>
+  </div>
+</div>
+
+<div class="card" style="padding:14px; margin-top:14px;">
+  <div class="pill">3-step reclaim plan</div>
+  <ol id="reclaimPlan" style="margin:10px 0 0 18px;"></ol>
+</div>
 </div>
 </div>
 </div>
@@ -631,45 +654,36 @@ async function makeReceipt(){
   document.getElementById('variantName').textContent = last.variant_name || last.variant_key || '';
   document.getElementById('tagline').textContent = last.house_motto || last.variant_means || '';
 
-  // Maria actions + variant explanation
-  const variantExplain = document.getElementById('variantExplain');
-  if(variantExplain) variantExplain.textContent = last.variant_means || '';
+  // detail sections
+  const fastestWinEl = document.getElementById('fastestWin');
+  const variantMeansEl = document.getElementById('variantMeans');
+  if(fastestWinEl) fastestWinEl.textContent = last.fastest_win || '—';
+  if(variantMeansEl) variantMeansEl.textContent = last.variant_means || '';
 
-  const mariaList = document.getElementById('mariaDo');
-  if(mariaList){
-    mariaList.innerHTML = '';
-    const acts = Array.isArray(last.maria_actions) ? last.maria_actions : [];
-    (acts.length ? acts : ['Automate the busywork tied to this pattern (coming soon).']).slice(0,6).forEach(t=>{
+  const mariaUl = document.getElementById('mariaActions');
+  if(mariaUl){
+    mariaUl.innerHTML = '';
+    (last.maria_actions || []).slice(0,6).forEach(a => {
       const li = document.createElement('li');
-      li.textContent = t;
-      mariaList.appendChild(li);
+      li.textContent = a;
+      mariaUl.appendChild(li);
     });
+    if((last.maria_actions || []).length === 0){
+      const li = document.createElement('li');
+      li.textContent = 'Maria will tailor automations to your top signals once Chambiar is live.';
+      mariaUl.appendChild(li);
+    }
   }
 
-  const fastestWin = document.getElementById('fastestWin');
-  if(fastestWin) fastestWin.textContent = last.fastest_win || '';
-
-  // Cheat sheet rendering (other Work Modes)
-  const csWrap = document.getElementById('cheatSheet');
-  if(csWrap){
-    csWrap.innerHTML = '';
-    const cs = last.cheat_sheet || {};
-    // Expect: {house_key: {one_liner, improve}, ...} or {houses:[...]}
-    const entries = cs.houses ? cs.houses : Object.values(cs);
-    (Array.isArray(entries) ? entries : []).slice(0,8).forEach(item=>{
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.style.padding = '12px';
-      card.style.borderRadius = '16px';
-      card.innerHTML = `
-        <div style="font-weight:700;">${item.name || item.house_name || ''}</div>
-        <div class="muted" style="margin-top:4px;">${item.one_liner || item.tagline || ''}</div>
-        <div style="margin-top:8px; font-size:13px;"><b>Improve:</b> ${item.improve || item.how_to_improve || ''}</div>
-      `;
-      csWrap.appendChild(card);
+  const planOl = document.getElementById('reclaimPlan');
+  if(planOl){
+    planOl.innerHTML = '';
+    (last.reclaim_plan || []).slice(0,3).forEach(step => {
+      const li = document.createElement('li');
+      li.textContent = step;
+      planOl.appendChild(li);
     });
   }
-
 
   const badgeImg = document.getElementById('badgeImg');
   const receiptImg = document.getElementById('receiptImg');
