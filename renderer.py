@@ -230,6 +230,9 @@ def render_receipt_png(receipt: Dict[str, Any], out_path: str):
         d.text((lx, y), f"Step {i}", font=small_b, fill=MUTED)
         y += 24
         for ln in _wrap(d, step.get("action", ""), body, rx - lx)[:2]:
+            d.text((lx, y), ln, font=body, fill=INK)
+            y += 24
+        y += 10
     d.line((lx, footer_y - 18, rx, footer_y - 18), fill=HAIRLINE, width=2)
     for ln in _wrap(d, "Privacy: no titles/subjects/names. Ranges + normalized labels only.", small, rx - lx)[:2]:
         d.text((lx, footer_y), ln, font=small, fill=MUTED)
