@@ -134,7 +134,10 @@ def render_receipt_png(receipt: Dict[str, Any], out_path: str):
     x0, y0, x1, y1 = card
     pad = 46
     lx, rx = x0 + pad, x1 - pad
-    y = y0 + pad
+    y = y0 + pad    # --- layout guard: prevent drawing into footer (must be defined before use) ---
+    footer_y = y1 - pad - 54
+    def _ensure_room(needed: int) -> bool:
+        return (y + needed) <= (footer_y - 22)
 
     title = _font(30, bold=True)
     sub = _font(18, bold=False)
@@ -227,15 +230,6 @@ def render_receipt_png(receipt: Dict[str, Any], out_path: str):
         d.text((lx, y), f"Step {i}", font=small_b, fill=MUTED)
         y += 24
         for ln in _wrap(d, step.get("action", ""), body, rx - lx)[:2]:
-            d.text((lx, y), ln, font=body, fill=INK)
-            y += 28
-        d.text((lx, y), f"Impact: {step.get('impact', '')}", font=small, fill=MUTED)
-        y += 34
-
-    footer_y = y1 - pad - 54
-    def _ensure_room(needed: int) -> bool:
-        # Return True if there is room for 'needed' vertical pixels before footer.
-        return (y + needed) <= (footer_y - 22)
     d.line((lx, footer_y - 18, rx, footer_y - 18), fill=HAIRLINE, width=2)
     for ln in _wrap(d, "Privacy: no titles/subjects/names. Ranges + normalized labels only.", small, rx - lx)[:2]:
         d.text((lx, footer_y), ln, font=small, fill=MUTED)
